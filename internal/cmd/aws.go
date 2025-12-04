@@ -16,6 +16,7 @@ var (
 	awsDays    int
 	awsProfile string
 	awsOutput  string
+	awsTop     int
 )
 
 var awsCmd = &cobra.Command{
@@ -43,6 +44,10 @@ func runAWS(cmd *cobra.Command, args []string) error {
 	if len(costs) == 0 {
 		fmt.Println("no cost data found")
 		return nil
+	}
+
+	if awsTop > 0 && awsTop < len(costs) {
+		costs = costs[:awsTop]
 	}
 
 	switch awsOutput {
@@ -113,5 +118,6 @@ func init() {
 	awsCmd.Flags().IntVarP(&awsDays, "days", "d", 30, "number of days to analyze")
 	awsCmd.Flags().StringVarP(&awsProfile, "profile", "p", "default", "aws profile to use")
 	awsCmd.Flags().StringVarP(&awsOutput, "output", "o", "table", "output format (table, json, csv)")
+	awsCmd.Flags().IntVarP(&awsTop, "top", "t", 0, "show top N services (0 = all)")
 	rootCmd.AddCommand(awsCmd)
 }
