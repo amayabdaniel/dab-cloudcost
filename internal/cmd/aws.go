@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"text/tabwriter"
@@ -13,6 +14,7 @@ import (
 var (
 	awsDays    int
 	awsProfile string
+	awsOutput  string
 )
 
 var awsCmd = &cobra.Command{
@@ -42,6 +44,35 @@ func runAWS(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
+	if awsOutput == "json" {
+		return outputJSON(costs)
+	}
+
+	return outputTable(costs)
+}
+
+func outputJSON(costs []aws.CostResult) error {
+	var total float64
+	for _, c := range costs {
+		total += c.Amount
+	}
+
+	output := struct {
+		Services []aws.CostResult `json:"services"`
+		Total    float64          `json:"total"`
+		Unit     string           `json:"unit"`
+	}{
+		Services: costs,
+		Total:    total,
+		Unit:     costs[0].Unit,
+	}
+
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(output)
+}
+
+func outputTable(costs []aws.CostResult) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "SERVICE\tCOST\tUNIT")
 	fmt.Fprintln(w, "-------\t----\t----")
@@ -62,5 +93,6 @@ func runAWS(cmd *cobra.Command, args []string) error {
 func init() {
 	awsCmd.Flags().IntVarP(&awsDays, "days", "d", 30, "number of days to analyze")
 	awsCmd.Flags().StringVarP(&awsProfile, "profile", "p", "default", "aws profile to use")
+	awsCmd.Flags().StringVarP(&awsOutput, "output", "o", "table", "output format (table, json)")
 	rootCmd.AddCommand(awsCmd)
 }
