@@ -13,9 +13,9 @@ import (
 )
 
 type CostResult struct {
-	Service string
-	Amount  float64
-	Unit    string
+	Service string  `json:"service"`
+	Amount  float64 `json:"amount"`
+	Unit    string  `json:"unit"`
 }
 
 type Client struct {
