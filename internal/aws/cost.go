@@ -2,6 +2,8 @@ package aws
 
 import (
 	"context"
+	"sort"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,7 +14,7 @@ import (
 
 type CostResult struct {
 	Service string
-	Amount  string
+	Amount  float64
 	Unit    string
 }
 
@@ -62,14 +64,19 @@ func (c *Client) GetCostsByService(ctx context.Context, days int) ([]CostResult,
 		for _, group := range result.Groups {
 			if len(group.Keys) > 0 {
 				cost := group.Metrics["UnblendedCost"]
+				amount, _ := strconv.ParseFloat(aws.ToString(cost.Amount), 64)
 				results = append(results, CostResult{
 					Service: group.Keys[0],
-					Amount:  aws.ToString(cost.Amount),
+					Amount:  amount,
 					Unit:    aws.ToString(cost.Unit),
 				})
 			}
 		}
 	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Amount > results[j].Amount
+	})
 
 	return results, nil
 }
