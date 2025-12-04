@@ -45,9 +45,15 @@ func runAWS(cmd *cobra.Command, args []string) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(w, "SERVICE\tCOST\tUNIT")
 	fmt.Fprintln(w, "-------\t----\t----")
+
+	var total float64
 	for _, c := range costs {
-		fmt.Fprintf(w, "%s\t%s\t%s\n", c.Service, c.Amount, c.Unit)
+		fmt.Fprintf(w, "%s\t%.2f\t%s\n", c.Service, c.Amount, c.Unit)
+		total += c.Amount
 	}
+
+	fmt.Fprintln(w, "-------\t----\t----")
+	fmt.Fprintf(w, "TOTAL\t%.2f\t%s\n", total, costs[0].Unit)
 	w.Flush()
 
 	return nil
