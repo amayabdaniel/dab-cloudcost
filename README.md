@@ -5,10 +5,10 @@ Cloud cost analyzer CLI for AWS and GCP.
 ## Features
 
 - AWS Cost Explorer integration
-- GCP Billing API integration
-- Resource right-sizing recommendations
-- Unused resource detection
-- CSV/JSON export
+- Cost breakdown by service
+- Sorted by cost (highest first)
+- Multiple output formats (table, json, csv)
+- Filter top N services
 
 ## Installation
 
@@ -22,14 +22,39 @@ go install github.com/amayabdaniel/dab-cloudcost/cmd/dab-cloudcost@latest
 # show help
 dab-cloudcost --help
 
-# analyze aws costs
-dab-cloudcost aws --profile default --days 30
+# analyze aws costs (last 30 days)
+dab-cloudcost aws
 
-# analyze gcp costs
-dab-cloudcost gcp --project my-project --days 30
+# analyze last 7 days
+dab-cloudcost aws --days 7
 
-# export to csv
+# use specific aws profile
+dab-cloudcost aws --profile production
+
+# show top 5 services
+dab-cloudcost aws --top 5
+
+# output as json
+dab-cloudcost aws --output json
+
+# output as csv
 dab-cloudcost aws --output csv > costs.csv
+
+# combine flags
+dab-cloudcost aws -d 7 -t 10 -o json
+```
+
+## Example Output
+
+```
+SERVICE                    COST     UNIT
+-------                    ----     ----
+Amazon EC2                 142.50   USD
+Amazon S3                  45.20    USD
+AWS Lambda                 12.30    USD
+Amazon RDS                 8.50     USD
+-------                    ----     ----
+TOTAL                      208.50   USD
 ```
 
 ## Development
@@ -43,7 +68,15 @@ make test
 
 # run
 make run
+
+# install locally
+make install
 ```
+
+## Requirements
+
+- Go 1.24+
+- AWS credentials configured (`aws configure`)
 
 ## License
 
