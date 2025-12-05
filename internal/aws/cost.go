@@ -64,6 +64,11 @@ func (c *Client) GetCostsByService(ctx context.Context, days int) ([]CostResult,
 		return nil, err
 	}
 
+	return ParseCostResponse(output), nil
+}
+
+// ParseCostResponse parses AWS cost response into CostResults
+func ParseCostResponse(output *costexplorer.GetCostAndUsageOutput) []CostResult {
 	var results []CostResult
 	for _, result := range output.ResultsByTime {
 		for _, group := range result.Groups {
@@ -78,10 +83,22 @@ func (c *Client) GetCostsByService(ctx context.Context, days int) ([]CostResult,
 			}
 		}
 	}
+	return SortByAmount(results)
+}
 
+// SortByAmount sorts results by amount descending
+func SortByAmount(results []CostResult) []CostResult {
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Amount > results[j].Amount
 	})
+	return results
+}
 
-	return results, nil
+// TotalCost calculates total cost from results
+func TotalCost(results []CostResult) float64 {
+	var total float64
+	for _, r := range results {
+		total += r.Amount
+	}
+	return total
 }
