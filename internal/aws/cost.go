@@ -18,8 +18,13 @@ type CostResult struct {
 	Unit    string  `json:"unit"`
 }
 
+// CostExplorerAPI interface for testing
+type CostExplorerAPI interface {
+	GetCostAndUsage(ctx context.Context, params *costexplorer.GetCostAndUsageInput, optFns ...func(*costexplorer.Options)) (*costexplorer.GetCostAndUsageOutput, error)
+}
+
 type Client struct {
-	ce *costexplorer.Client
+	ce CostExplorerAPI
 }
 
 func NewClient(ctx context.Context, profile string) (*Client, error) {
