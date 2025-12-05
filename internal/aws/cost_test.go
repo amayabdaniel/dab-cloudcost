@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"math"
 	"testing"
 )
 
@@ -81,6 +82,54 @@ func TestSortByAmount(t *testing.T) {
 				if result[i].Amount != tt.expected[i].Amount {
 					t.Errorf("index %d: amount got %f, want %f", i, result[i].Amount, tt.expected[i].Amount)
 				}
+			}
+		})
+	}
+}
+
+func TestTotalCost(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []CostResult
+		expected float64
+	}{
+		{
+			name:     "empty slice",
+			input:    []CostResult{},
+			expected: 0.0,
+		},
+		{
+			name: "single item",
+			input: []CostResult{
+				{Service: "EC2", Amount: 100.50, Unit: "USD"},
+			},
+			expected: 100.50,
+		},
+		{
+			name: "multiple items",
+			input: []CostResult{
+				{Service: "EC2", Amount: 100.0, Unit: "USD"},
+				{Service: "S3", Amount: 50.25, Unit: "USD"},
+				{Service: "Lambda", Amount: 10.75, Unit: "USD"},
+			},
+			expected: 161.0,
+		},
+		{
+			name: "with zero amounts",
+			input: []CostResult{
+				{Service: "EC2", Amount: 100.0, Unit: "USD"},
+				{Service: "S3", Amount: 0.0, Unit: "USD"},
+				{Service: "Lambda", Amount: 50.0, Unit: "USD"},
+			},
+			expected: 150.0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := TotalCost(tt.input)
+			if math.Abs(result-tt.expected) > 0.001 {
+				t.Errorf("got %f, want %f", result, tt.expected)
 			}
 		})
 	}
