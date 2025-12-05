@@ -40,6 +40,11 @@ func NewClient(ctx context.Context, profile string) (*Client, error) {
 	}, nil
 }
 
+// NewClientWithAPI creates a client with a custom API (for testing)
+func NewClientWithAPI(api CostExplorerAPI) *Client {
+	return &Client{ce: api}
+}
+
 func (c *Client) GetCostsByService(ctx context.Context, days int) ([]CostResult, error) {
 	end := time.Now()
 	start := end.AddDate(0, 0, -days)
