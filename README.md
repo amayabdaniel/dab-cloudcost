@@ -5,6 +5,7 @@ Cloud cost analyzer CLI for AWS and GCP.
 ## Features
 
 - AWS Cost Explorer integration
+- GCP BigQuery billing export integration
 - Cost breakdown by service
 - Sorted by cost (highest first)
 - Multiple output formats (table, json, csv)
@@ -18,10 +19,9 @@ go install github.com/amayabdaniel/dab-cloudcost/cmd/dab-cloudcost@latest
 
 ## Usage
 
-```bash
-# show help
-dab-cloudcost --help
+### AWS
 
+```bash
 # analyze aws costs (last 30 days)
 dab-cloudcost aws
 
@@ -42,6 +42,19 @@ dab-cloudcost aws --output csv > costs.csv
 
 # combine flags
 dab-cloudcost aws -d 7 -t 10 -o json
+```
+
+### GCP
+
+```bash
+# analyze gcp costs (requires bigquery billing export)
+dab-cloudcost gcp --project my-project --billing-table project.dataset.gcp_billing_export
+
+# analyze last 7 days
+dab-cloudcost gcp -p my-project --billing-table project.dataset.table -d 7
+
+# show top 10 services as json
+dab-cloudcost gcp -p my-project --billing-table project.dataset.table -t 10 -o json
 ```
 
 ## Example Output
@@ -76,7 +89,9 @@ make install
 ## Requirements
 
 - Go 1.24+
-- AWS credentials configured (`aws configure`)
+- AWS: credentials configured (`aws configure`)
+- GCP: application default credentials (`gcloud auth application-default login`)
+- GCP: billing export to BigQuery enabled
 
 ## License
 
